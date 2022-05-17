@@ -1053,7 +1053,7 @@ HTTPAPIServer::InferResponseAlloc(
     // Can't allocate for any memory type other than CPU. If asked to
     // allocate on GPU memory then force allocation on CPU instead.
     if (*actual_memory_type != TRITONSERVER_MEMORY_CPU) {
-      LOG_VERBOSE(1) << "HTTP: unable to provide '" << tensor_name << "' in "
+      LOG_ERROR << "HTTP: unable to provide '" << tensor_name << "' in "
                      << TRITONSERVER_MemoryTypeString(*actual_memory_type)
                      << ", will use "
                      << TRITONSERVER_MemoryTypeString(TRITONSERVER_MEMORY_CPU);
@@ -2313,7 +2313,7 @@ HTTPAPIServer::HandleInfer(
   }
 
   if (err != nullptr) {
-    LOG_VERBOSE(1) << "Infer failed: " << TRITONSERVER_ErrorMessage(err);
+    LOG_ERROR << "Infer failed: " << TRITONSERVER_ErrorMessage(err);
     evhtp_headers_add_header(
         req->headers_out,
         evhtp_header_new(kContentTypeHeader, "application/json", 1, 1));
@@ -2699,7 +2699,7 @@ HTTPAPIServer::InferRequestClass::FinalizeResponse(
         evbuffer_free(response_placeholder);
       } else {
         // just log the compression error and return the uncompressed data
-        LOG_VERBOSE(1) << "unable to compress response: "
+        LOG_ERROR << "unable to compress response: "
                        << TRITONSERVER_ErrorMessage(err);
         TRITONSERVER_ErrorDelete(err);
         evbuffer_free(compressed_buffer);
@@ -2837,7 +2837,7 @@ HTTPAPIServer::Handle(evhtp_request_t* req)
     }
   }
 
-  LOG_VERBOSE(1) << "HTTP error: " << req->method << " " << req->uri->path->full
+  LOG_ERROR << "HTTP error: " << req->method << " " << req->uri->path->full
                  << " - " << static_cast<int>(EVHTP_RES_BADREQ);
 
   evhtp_send_reply(req, EVHTP_RES_BADREQ);
